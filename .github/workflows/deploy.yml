@@ -38,7 +38,7 @@ jobs:
         TF_VAR_project: b31-domain
       run: |
           tofu init
-          tofu apply
+          tofu apply -input=false -compact-warnings -auto-approve
       
 
 
