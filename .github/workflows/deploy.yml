@@ -1,0 +1,48 @@
+name: GCP Function deploy
+on:
+  push:
+        branches: ['master']
+        paths:
+            - 'dns-updater/**'
+  workflow_dispatch:
+
+jobs:
+  job_id:
+    runs-on: 'ubuntu-latest'
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    - uses: 'actions/checkout@v4'
+
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        project_id: ${{ vars.GCP_PROJECT }}
+        workload_identity_provider: ${{secrets.GCP_ID_PROVIDER}}
+        service_account: ${{secrets.GCP_DEPLOY_ACC}}
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+      with:
+        version: '>= 363.0.0'
+
+    - id: 'deploy'
+      uses: 'google-github-actions/deploy-cloud-functions@v3'
+      timeout-minutes: 3
+      with:
+        name: 'dns-updater'
+        runtime: 'python39'
+        region: europe-north1
+        source_dir: .dns-updater/
+        entry_point: 'main'
+        environment: "GEN2"
+        service_account: ${{ vars.RUNTIME_SVC_ACC }}
+
+    - name: 'Allow Unauthorized Calls'
+      run: |
+        gcloud functions add-invoker-policy-binding dns-updater \
+          --region europe-north1 \
+          --member="allUsers"
+      shell: bash
