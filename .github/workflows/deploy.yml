@@ -7,7 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  job_id:
+  deploy_to_gcp:
+    name: "Deploy to GCP"
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
@@ -35,10 +36,14 @@ jobs:
         name: 'dns-updater'
         runtime: 'python39'
         region: europe-north1
-        source_dir: .dns-updater/
+        source_dir: ./dns-updater
         entry_point: 'main'
-        environment: "GEN2"
+        environment: "GEN_2"
+        max_instance_count: 1
         service_account: ${{ vars.RUNTIME_SVC_ACC }}
+        environment_variables: |-
+          dnsZoneName=zadorieu
+          dnsDomain=b31.zadori.eu
 
     - name: 'Allow Unauthorized Calls'
       run: |
