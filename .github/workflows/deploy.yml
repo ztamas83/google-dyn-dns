@@ -24,30 +24,43 @@ jobs:
         workload_identity_provider: ${{secrets.GCP_ID_PROVIDER}}
         service_account: ${{secrets.GCP_DEPLOY_ACC}}
 
-    - name: 'Set up Cloud SDK'
-      uses: 'google-github-actions/setup-gcloud@v2'
-      with:
-        version: '>= 363.0.0'
+    - id: 'setup-tofu'
+      name: "Setup OpenTofu"
+      uses: opentofu/setup-opentofu@v1
 
-    - id: 'deploy'
-      uses: 'google-github-actions/deploy-cloud-functions@v3'
-      timeout-minutes: 3
-      with:
-        name: 'dns-updater'
-        runtime: 'python39'
-        region: europe-north1
-        source_dir: ./dns-updater
-        entry_point: 'main'
-        environment: "GEN_2"
-        max_instance_count: 1
-        service_account: ${{ vars.RUNTIME_SVC_ACC }}
-        environment_variables: |-
-          dnsZoneName=zadorieu
-          dnsDomain=b31.zadori.eu
-
-    - name: 'Allow Unauthorized Calls'
-      run: |
-        gcloud functions add-invoker-policy-binding dns-updater \
-          --region europe-north1 \
-          --member="allUsers"
+    - name: "Deploy solution"
       shell: bash
+      working-directory: ./infrastructure  
+      env:
+        TF_VAR_function_name: "dns-updater"
+        TF_VAR_domain_name: b31.zadori.eu.
+        TF_VAR_dns_zone_name: zadorieu
+        TF_VAR_project: b31-domain
+      run: |
+          tofu init
+          tofu apply
+      
+
+
+    # - id: 'deploy'
+    #   uses: 'google-github-actions/deploy-cloud-functions@v3'
+    #   timeout-minutes: 3
+    #   with:
+    #     name: 'dns-updater'
+    #     runtime: 'python39'
+    #     region: europe-north1
+    #     source_dir: ./dns-updater
+    #     entry_point: 'main'
+    #     environment: "GEN_2"
+    #     max_instance_count: 1
+    #     service_account: ${{ vars.RUNTIME_SVC_ACC }}
+    #     environment_variables: |-
+    #       dnsZoneName=zadorieu
+    #       dnsDomain=b31.zadori.eu
+
+    # - name: 'Allow Unauthorized Calls'
+    #   run: |
+    #     gcloud functions add-invoker-policy-binding dns-updater \
+    #       --region europe-north1 \
+    #       --member="allUsers"
+    #   shell: bash
