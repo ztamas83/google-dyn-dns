@@ -1,3 +1,5 @@
+data "google_project" "current" {}
+
 resource "google_cloudfunctions2_function" "function" {
   name        = var.function_name
   location    = var.location
@@ -23,6 +25,7 @@ resource "google_cloudfunctions2_function" "function" {
     environment_variables          = {
       dnsZoneName = var.dns_zone_name
       dnsDomain = var.domain_name
+      authPassword = "projects/${data.google_project.current.project_id}/secrets/apiKey:1"
     }
     ingress_settings               = var.ingress_settings
     all_traffic_on_latest_revision = var.all_traffic_on_latest_revision
