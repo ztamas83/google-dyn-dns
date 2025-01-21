@@ -92,3 +92,15 @@ variable "domain_name" {
     description = "The DNS domain name in the zone"
     type        = string
 }
+
+variable "api_user" {
+    description = "The API user"
+    type        = string
+    default = "pfsense"
+}
+
+variable "api_key_secret" {
+    description = "The API key secret name"
+    type        = string
+    default = "apiKey"
+}

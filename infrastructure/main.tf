@@ -22,10 +22,11 @@ resource "google_cloudfunctions2_function" "function" {
     min_instance_count  = 0
     max_instance_count  = 1
     timeout_seconds                = var.timeout_seconds
+    
     environment_variables          = {
       dnsZoneName = var.dns_zone_name
       dnsDomain = var.domain_name
-      authPassword = "projects/${data.google_project.current.project_id}/secrets/apiKey:1"
+      apiUser = var.api_user
     }
     ingress_settings               = var.ingress_settings
     all_traffic_on_latest_revision = var.all_traffic_on_latest_revision
