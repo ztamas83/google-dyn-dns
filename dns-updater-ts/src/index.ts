@@ -56,7 +56,19 @@ async function updateRecord(
 }
 
 export async function httpFunction(req: Request, res: Response): Promise<void> {
-  console.log("Received request:", req.method, req.url, req.body, req.query);
+  console.log(
+    "Received request method, URL, body, query",
+    req.method,
+    req.url,
+    req.body,
+    req.query
+  );
+
+  if (req.url.split("?")[0] !== "/") {
+    res.status(404).send("Not found");
+    return;
+  }
+
   if (req.method !== "POST" && req.method !== "GET") {
     res.status(405).send("Invalid method");
   }
@@ -66,11 +78,11 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
     res.status(401).send("Unauthorized");
   }
 
-  console.log("Authorization header received", auth);
+  // console.log("Authorization header received", auth);
 
   const appConfig = await getAppConfig();
 
-  console.log("Using configuration:", appConfig);
+  // console.log("Using configuration:", appConfig);
 
   const gcpProject = appConfig.gcp.projectId;
 
@@ -82,7 +94,7 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
   const decodedAuth = Buffer.from(auth!.substring(6), "base64").toString(
     "utf-8"
   );
-  console.log("Decoded auth:", decodedAuth);
+  // console.log("Decoded auth:", decodedAuth);
   const [reqUser, reqPass] = decodedAuth.split(":");
 
   if (reqUser !== appConfig.httpAuth.username) {
@@ -97,10 +109,9 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  let host = req.query.host as string;
-  if (req.method === "POST") {
-    host = req.body.host;
-  }
+  const host = (
+    req.method === "POST" ? req.body.host : req.query.host
+  ) as string;
 
   if (!host) {
     res.status(400).send("Missing host parameter");
@@ -111,7 +122,7 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
   console.log("Updating DNS for FQDN:", fqdn);
 
   try {
-    const publicIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const publicIp = req.headers["x-forwarded-for"];
     console.log("Detected public IP:", publicIp);
     if (!publicIp || Array.isArray(publicIp)) {
       throw new Error("Could not determine public IP");
@@ -122,7 +133,8 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
       appConfig.gcp.projectId!,
       appConfig.dns.zone!
     );
-    res.status(200).send(`DNS record for ${fqdn} updated to ${publicIp}`);
+
+    res.status(200).send(`DNS record for ${fqdn} set to ${publicIp}`);
   } catch (error) {
     console.error("Error updating DNS record", error);
     res.status(500).send("Error updating DNS record");
