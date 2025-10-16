@@ -1,7 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "zcloud-tf-states"
-    prefix = "b31-domain/infra"
+    
   }
 
   required_providers {

@@ -22,6 +22,7 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT }}
           workload_identity_provider: ${{secrets.GCP_ID_PROVIDER}}
           service_account: ${{secrets.GCP_DEPLOY_ACC}}
+          token_format: "access_token"
 
       - id: "setup-npm"
         uses: "actions/setup-node@v3"
@@ -41,12 +42,36 @@ jobs:
         name: "Setup OpenTofu"
         uses: opentofu/setup-opentofu@v1
 
-      - name: "Deploy solution"
-        shell: bash
+      - name: Write backend config
         working-directory: ./infrastructure
+        shell: bash
+        env:
+          BUCKET: ${{ vars.TF_BACKEND_BUCKET }}
+          PREFIX: ${{ vars.TF_BACKEND_PREFIX }}
+        run: |
+          echo "bucket = \"${BUCKET}\"" >> dyndns.backend
+          echo "prefix = \"${PREFIX}\"" >> dyndns.backend
+
+      - id: "init"
+        name: "Tofu init"
+        working-directory: ./infrastructure
+        run: |
+          tofu init -backend-config=dyndns.backend
+
+      - name: OpenTofu Plan
+        working-directory: ./infrastructure
+        id: plan
+        env:
+          TF_VAR_project: ${{ vars.GCP_PROJECT }}
+          TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+        run: tofu plan -no-color
+        continue-on-error: true
+
+      - name: "Deploy solution"
+        working-directory: ./infrastructure
+        if: steps.plan.outcome == 'success'
         env:
           TF_VAR_project: ${{ vars.GCP_PROJECT }}
           TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
         run: |
-          tofu init
           tofu apply -input=false -compact-warnings -auto-approve
