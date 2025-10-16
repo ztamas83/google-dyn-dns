@@ -1,0 +1,29 @@
+{
+  "name": "dns-updater-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "npm run build && npx @google-cloud/functions-framework --target=httpFunction"
+  },
+  "keywords": [],
+  "author": "Tamas Z",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google-cloud/dns": "^5.3.0",
+    "@google-cloud/functions-framework": "^4.0.0",
+    "@google-cloud/secret-manager": "^6.1.1",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
+    "gcp-metadata": "^8.1.0",
+    "google-auth-library": "^10.4.0",
+    "mikroconf": "^1.0.0"
+  }
+}

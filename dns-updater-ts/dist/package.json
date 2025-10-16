@@ -1,0 +1,15 @@
+{
+  "name": "dns-updater-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@google-cloud/dns": "^5.3.0",
+    "@google-cloud/functions-framework": "^4.0.0",
+    "@google-cloud/secret-manager": "^6.1.1",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
+    "gcp-metadata": "^8.1.0",
+    "google-auth-library": "^10.4.0",
+    "mikroconf": "^1.0.0"
+  }
+}

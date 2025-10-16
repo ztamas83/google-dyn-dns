@@ -1,23 +1,23 @@
 terraform {
   backend "gcs" {
-    bucket = "b31-domain-terraform-states"
-    prefix = "b31-domain"
+    bucket = "zcloud-tf-states"
+    prefix = "b31-domain/infra"
   }
 
   required_providers {
     archive = {
       source  = "hashicorp/archive"
-      version = ">= 2.2.0"
+      version = ">= 2.7.1"
     }
     google = {
       source  = "hashicorp/google"
-      version = ">= 5.33.0"
+      version = ">= 7.6.0"
     }
   }
 }
 
 provider "google" {
-    project = var.project
-    region = var.location
+  project = var.project
+  region  = var.location
 }
   
