@@ -65,11 +65,9 @@ jobs:
           TF_VAR_project: ${{ vars.GCP_PROJECT }}
           TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
         run: tofu plan -no-color
-        continue-on-error: true
 
       - name: "Deploy solution"
         working-directory: ./infrastructure
-        if: steps.plan.outcome == 'success'
         env:
           TF_VAR_project: ${{ vars.GCP_PROJECT }}
           TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}

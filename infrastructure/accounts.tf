@@ -12,6 +12,7 @@ resource "google_project_iam_custom_role" "dns_record_updater" {
     "dns.resourceRecordSets.get",
     "dns.resourceRecordSets.list",
     "dns.resourceRecordSets.update",
+    "dns.resourceRecordSets.create",
     "dns.changes.create",
     "secretmanager.versions.access"
   ]
