@@ -74,8 +74,9 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
   }
 
   const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith("Basic ")) {
+  if (!auth || (!auth.startsWith("Basic ") && !auth.startsWith("Bearer "))) {
     res.status(401).send("Unauthorized");
+    return;
   }
 
   // console.log("Authorization header received", auth);
@@ -91,22 +92,24 @@ export async function httpFunction(req: Request, res: Response): Promise<void> {
     process.exit(1);
   }
 
-  const decodedAuth = Buffer.from(auth!.substring(6), "base64").toString(
-    "utf-8"
-  );
-  // console.log("Decoded auth:", decodedAuth);
-  const [reqUser, reqPass] = decodedAuth.split(":");
+  if (auth.startsWith("Basic ")) {
+    const decodedAuth = Buffer.from(auth!.substring(6), "base64").toString(
+      "utf-8"
+    );
+    // console.log("Decoded auth:", decodedAuth);
+    const [reqUser, reqPass] = decodedAuth.split(":");
 
-  if (reqUser !== appConfig.httpAuth.username) {
-    console.error("Unauthorized access attempt with user:", reqUser);
-    res.status(403).send("Unauthorized");
-    return;
-  }
+    if (reqUser !== appConfig.httpAuth.username) {
+      console.error("Unauthorized access attempt with user:", reqUser);
+      res.status(403).send("Unauthorized");
+      return;
+    }
 
-  if (reqPass !== appConfig.httpAuth.password) {
-    console.error("Unauthorized access attempt with password:", reqPass);
-    res.status(403).send("Unauthorized");
-    return;
+    if (reqPass !== appConfig.httpAuth.password) {
+      console.error("Unauthorized access attempt with password:", reqPass);
+      res.status(403).send("Unauthorized");
+      return;
+    }
   }
 
   const host = (

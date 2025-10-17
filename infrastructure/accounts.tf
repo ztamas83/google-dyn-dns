@@ -1,3 +1,8 @@
+resource "google_service_account" "a38_dnsupdater_account" {
+  account_id   = "a38-updater"
+  display_name = "DNS updaterservice account"
+}
+
 resource "google_service_account" "function_runtime_account" {
   account_id   = "${local.function_name}-runtime"
   display_name = "Function runtime service account"

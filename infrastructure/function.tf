@@ -65,7 +65,9 @@ resource "google_cloud_run_service_iam_binding" "public_binding" {
   location   = google_cloudfunctions2_function.function.location
   service    = google_cloudfunctions2_function.function.name
   role       = "roles/run.invoker"
-  members    = ["allUsers"]
+  members    = [
+    "serviceAccount:${google_service_account.a38_dnsupdater_account.email}"
+  ]
   depends_on = [google_cloudfunctions2_function.function]
   lifecycle {
     replace_triggered_by = [google_cloudfunctions2_function.function]
