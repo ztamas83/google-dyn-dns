@@ -28,7 +28,11 @@ resource "google_cloudfunctions2_function" "function" {
   service_config {
     min_instance_count = 0
     max_instance_count = 1
-    timeout_seconds    = 180
+    max_instance_request_concurrency = 1
+    timeout_seconds    = 30
+    available_memory = "256Mi"
+    available_cpu = 0.08
+       
 
     environment_variables = {
       DNS_ZONE   = google_dns_managed_zone.dns_zone.name
@@ -52,6 +56,7 @@ resource "google_cloudfunctions2_function" "function" {
     ingress_settings               = "ALLOW_ALL"
     all_traffic_on_latest_revision = "true"
     service_account_email          = google_service_account.function_runtime_account.email
+    
   }
 }
 

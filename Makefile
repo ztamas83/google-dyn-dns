@@ -7,5 +7,6 @@ build:
 
 deploy: build
 	@echo "Deploying dns-updater-ts..."
-	@cd infrastructure && terraform apply -auto-approve -backend-config=dyndns.backend
+	@cd infrastructure && terraform init -backend-config=dyndns.backend
+	@cd infrastructure && terraform apply -auto-approve 
 	@echo "Deployment complete."
