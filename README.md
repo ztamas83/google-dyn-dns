@@ -83,4 +83,52 @@ curl -X POST -u "your-username:your-password" http://localhost:8080/update -H "C
 
 The `host` parameter should be the subdomain to update (e.g., `www`). The application will append the domain configured.
 
----
+### Cloud Usage
+
+To call the function from a client (e.g., from your home network with a dynamic IP), you need to authenticate using a service account.
+
+1.  **Create a Service Account**: In your Google Cloud project, create a new service account.
+2.  **Grant Permissions**: Grant the `Cloud Functions Invoker` role to this service account. This allows it to call the deployed function.
+3.  **Create and Download a Key**: Create a JSON key for the service account and download it to your client machine where you will run the update script.
+
+#### Calling the function
+
+The `script` folder contains helper scripts to authenticate and call the function.
+
+- `create-jwt-token.sh`: Creates a signed JWT token from the service account key.
+- `get-token.sh`: Exchanges the JWT for a Google-signed OIDC ID token.
+- `update-dns.sh`: A wrapper script that gets a token and calls the DNS update function.
+
+**Usage:**
+
+Make sure the scripts are executable:
+
+```bash
+chmod +x script/*.sh
+```
+
+Run the update script:
+
+```bash
+./script/update-dns.sh /path/to/your/service-account.json your-subdomain https://your-function-url
+```
+
+- `/path/to/your/service-account.json`: The path to the key you downloaded.
+- `your-subdomain`: The subdomain to update (e.g., `home`).
+- `https://your-function-url`: The trigger URL of your deployed Cloud Function.
+
+#### Periodic updates with Cron
+
+To keep your DNS record updated, you can run the script periodically using a cron job.
+
+Open your crontab for editing:
+
+```bash
+crontab -e
+```
+
+Add the following entry to run the script every 6 hours. Make sure to use absolute paths for the script and the key file.
+
+```cron
+* */6 * * * /path/to/google-dyn-dns/script/update-dns.sh /path/to/your/service-account.json your-subdomain https://your-function-url >/dev/null 2>&1
+```
